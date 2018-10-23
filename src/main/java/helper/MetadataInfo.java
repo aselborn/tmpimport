@@ -12,6 +12,37 @@ public abstract class MetadataInfo {
     private double latitude;
     private double longitude;
 
+    private String parameterName;
+    private String beskrivning;
+
+    private boolean isMonthAvarage;
+
+    public boolean isMonthAvarage() {
+        return isMonthAvarage;
+    }
+
+    public void setIsMonthAvarage(boolean monthAvarage) {
+        isMonthAvarage = monthAvarage;
+    }
+
+    public String getBeskrivning() {
+        return beskrivning;
+    }
+
+    public void setBeskrivning(String beskrivning) {
+        this.beskrivning = beskrivning;
+    }
+
+    public String getParameterName() {
+        return parameterName;
+    }
+
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
+    }
+
+
+
     public LocalDateTime getLocationStart() {
         return locationStart;
     }

@@ -3,7 +3,7 @@
     import java.util.ArrayList;
     import java.util.List;
 
-    public class TemperatureCSV {
+    public class TemperatureCSV extends TemperatureMonthAvg{
 
         private String datString;
         private String timeString;

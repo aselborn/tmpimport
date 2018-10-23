@@ -3,6 +3,7 @@
 .idea/workspace.xml
 target/
 dependency-reduced-pom.xml
+*.csv
 tellstick.conf
 lighter.log.*
 nohup.out

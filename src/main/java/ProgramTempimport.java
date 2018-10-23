@@ -12,7 +12,7 @@ public class ProgramTempimport {
 
 
         //ReadCSV readCSV = new ReadCSV("/home/anders/code/tmpimport/data/data.csv");
-        ReadCSV readCSV = new ReadCSV("/home/anders/Downloads/smhi-opendata_1_180940_20181021_150055.csv");
+        ReadCSV readCSV = new ReadCSV("/home/anders/Downloads/smhi-opendata_22_180750_20181023_070115.csv");
 
         readCSV.Read();
 

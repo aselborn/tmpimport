@@ -11,6 +11,8 @@ public class Inserter  {
 
     private TemperatureObject m_TemperatureObject;
 
+    private static String CONTAINS_MONTH = "månad";
+
     public Inserter(TemperatureObject temperatureObject){
         m_TemperatureObject=temperatureObject;
     }
@@ -18,14 +20,79 @@ public class Inserter  {
     public int insertData(){
 
         int rowsInserted = -1;
-
+        int newKeyInserted = -1;
         if (m_TemperatureObject == null || m_TemperatureObject.getTemperatureCSVList().size() == 0){
             return  0;
         }
 
-        String sql = "INSERT INTO Temperature.Location(LocationName, LocationNumber, LocationHeight, LocationStart, LocationStop, LocationLatitude, LocationLongitude) VALUES(?,?,?,?,?,?,?)";
-        Statement stmt = null;
+        int newLocationId = dbSaveLocation();
 
+        //What kind of data ...
+        if (m_TemperatureObject.isMonthAvarage()) {
+            //Save Month.
+            rowsInserted = saveMonthData(newLocationId);
+        } else{
+
+            rowsInserted = insertTemperature(newLocationId);
+        }
+
+
+        return rowsInserted;
+    }
+
+    private int saveMonthData(int locationId) {
+
+        int rowsInserted = -1;
+
+        String sqlInsert="INSERT INTO MonthData (LocationId, RepYear, RepMonth, TempData) VALUES(?,?,?,?)";
+
+        Connection thisConnection = ConnectionManager.getConnected();
+        try{
+
+            thisConnection.setAutoCommit(false);
+
+            PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
+
+            int insertCount=0;
+            int batchSize=100;
+
+            for (TemperatureCSV temperatureCSV : m_TemperatureObject.getTemperatureCSVList()){
+
+                pstmt.setInt(1, locationId);
+                pstmt.setInt(2, temperatureCSV.getRepYear());
+                pstmt.setInt(3, temperatureCSV.getRepMonth());
+
+                pstmt.setDouble(4, Double.parseDouble(temperatureCSV.getTempString()));
+
+                pstmt.addBatch();
+
+                if (++insertCount % batchSize == 0){
+                    pstmt.executeBatch();
+                }
+
+            }
+
+            int[] n = pstmt.executeBatch();
+            thisConnection.commit();
+
+            rowsInserted=insertCount;
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+
+        return rowsInserted;
+    }
+
+
+    private int dbSaveLocation() {
+
+        String sql =
+                "INSERT INTO Temperature.Location(LocationName, LocationNumber, " +
+                        "LocationHeight, LocationStart, LocationStop, LocationLatitude, LocationLongitude, LocationTemperatureType) VALUES(?,?,?,?,?,?,?,?)";
+        Statement stmt = null;
 
         try{
 
@@ -41,6 +108,7 @@ public class Inserter  {
 
             pstmt.setDouble(6, m_TemperatureObject.getLatitude());
             pstmt.setDouble(7, m_TemperatureObject.getLongitude());
+            pstmt.setString(8, m_TemperatureObject.getBeskrivning());
 
             pstmt.executeUpdate();
 
@@ -50,17 +118,16 @@ public class Inserter  {
             }
 
 
-            if (keyInserted != 0){
-                rowsInserted = insertTemperature(keyInserted);
-            }
+            return keyInserted;
+
 
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+        return  -1;
 
-        return rowsInserted;
     }
 
     private int insertTemperature (int locationId){
@@ -95,6 +162,8 @@ public class Inserter  {
 
             int[] n = pstmt.executeBatch();
             thisConnection.commit();
+
+            rowsInserted=insertCount;
 
 
         } catch (SQLException e) {

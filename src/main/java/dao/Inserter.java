@@ -12,6 +12,7 @@ public class Inserter  {
     private TemperatureObject m_TemperatureObject;
 
     private static String CONTAINS_MONTH = "månad";
+    private boolean useSQLite = Boolean.parseBoolean(Util.readConfiguration("usesqlite"));
 
     public Inserter(TemperatureObject temperatureObject){
         m_TemperatureObject=temperatureObject;
@@ -46,7 +47,9 @@ public class Inserter  {
 
         String sqlInsert="INSERT INTO MonthData (LocationId, RepYear, RepMonth, TempData) VALUES(?,?,?,?)";
 
-        Connection thisConnection = ConnectionManager.getConnected();
+        //Connection thisConnection = ConnectionManager.getConnected();
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+
         try{
 
             thisConnection.setAutoCommit(false);
@@ -89,16 +92,22 @@ public class Inserter  {
 
     private int dbSaveLocation() {
 
-        String sql =
+
+        String sql = useSQLite ? "INSERT INTO Location(LocationName, LocationNumber, " +
+                "LocationHeight, LocationStart, LocationStop, LocationLatitude, LocationLongitude, LocationTemperatureType) VALUES(?,?,?,?,?,?,?,?)" :
+
                 "INSERT INTO Temperature.Location(LocationName, LocationNumber, " +
                         "LocationHeight, LocationStart, LocationStop, LocationLatitude, LocationLongitude, LocationTemperatureType) VALUES(?,?,?,?,?,?,?,?)";
+
         Statement stmt = null;
 
         try{
 
             int keyInserted=0;
 
-            PreparedStatement pstmt = ConnectionManager.getConnected().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            //Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+            PreparedStatement pstmt = useSQLite ? ConnectionManager.getSqliteConnected().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS) :
+                    ConnectionManager.getConnected().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setString(1, m_TemperatureObject.getStationsNamn());
             pstmt.setString(2, m_TemperatureObject.getKlimatNummer());
@@ -139,7 +148,7 @@ public class Inserter  {
 
         try {
 
-            Connection thisConnection = ConnectionManager.getConnected();
+            Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
             thisConnection.setAutoCommit(false);
 
             PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);

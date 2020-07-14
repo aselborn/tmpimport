@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smhi.JSONParse;
 
+import java.io.Console;
 import java.io.IOException;
 
 public class ProgramTempimport {
@@ -39,7 +40,10 @@ public class ProgramTempimport {
             if (args[0].compareTo("--smhi") == 0){
 
                 log.info("Contacting SMHI.");
+                JSONParse smhiApi = new JSONParse();
+                String params = smhiApi.getParameters();
 
+                System.out.println(params);
 
             }
 

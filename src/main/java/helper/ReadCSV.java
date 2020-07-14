@@ -59,7 +59,11 @@ public class ReadCSV {
             if (parseTimePeriod){
 
                 String[] rows = data[0].replace(",", " ").split(";");
+
                 if (!rows[0].isEmpty()){
+
+                    if (rows[0].startsWith(";"))
+                        break;
 
                     if (stepCount==0) { //startdat
                         temperatureObject.setLocationStart(Util.getDateTime(rows[DATE_STRING]));
@@ -112,13 +116,17 @@ public class ReadCSV {
                 if (temperatureObject.isMonthAvarage()){
 
                     String[] yearMonth = rows[YEAR_MONTH_TEXT].split("-");
-                    int y = Integer.parseInt(yearMonth[0]);
-                    int m = Integer.parseInt(yearMonth[1]);
+                    if (yearMonth[0].length() > 0){
 
-                    temperatureCSV.setDatString(rows[YEAR_MONTH_TEXT]);
-                    temperatureCSV.setTempString(rows[MONTH_TEMP]);
-                    temperatureCSV.setRepYear(y);;
-                    temperatureCSV.setRepMonth(m);
+                        int y = Integer.parseInt(yearMonth[0]);
+                        int m = Integer.parseInt(yearMonth[1]);
+
+                        temperatureCSV.setDatString(rows[YEAR_MONTH_TEXT]);
+                        temperatureCSV.setTempString(rows[MONTH_TEMP]);
+                        temperatureCSV.setRepYear(y);;
+                        temperatureCSV.setRepMonth(m);
+
+                    }
 
                 }else {
                     temperatureCSV.setDatString(rows[DATE_STRING]);

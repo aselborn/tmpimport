@@ -27,7 +27,7 @@ public class JSONParse {
      * @throws IOException
      * @throws JSONException
      */
-    private String getParameters() throws IOException, JSONException {
+    public String getParameters() throws IOException, JSONException {
 
         JSONObject parameterObject = readJsonFromUrl(metObsAPI + "/version/latest.json");
         JSONArray parametersArray = parameterObject.getJSONArray("resource");

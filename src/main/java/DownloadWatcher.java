@@ -78,7 +78,7 @@ public class DownloadWatcher {
 
                 if (kind == StandardWatchEventKinds.ENTRY_CREATE){
 
-                    log.info("Filen : " + name + " skapades, kollar om det är en ok, temperatur-fil...");
+                    log.info("The file : " + name + " arrived, check if a valid SMHI-temperaturefile?...");
 
                     File finfo = new File(pathToDirectory.concat("/").concat(name.toString()));
 
@@ -92,7 +92,7 @@ public class DownloadWatcher {
                             if (finfo.lastModified() == lastModifiedTime){
                                 lastModifiedTime=0;
                                 skip=true;
-                                System.out.println("HOPPAR ÖVER!!");
+                                System.out.println("Skipping this crap!!");
                             }
                         }
 
@@ -102,14 +102,15 @@ public class DownloadWatcher {
                         try {
                             readCSV.Read();
 
-                            log.info("CSVfilen kunde läsas, rader = " + readCSV.getTemperatureObject().getTemperatureCSVList().size());
-                            log.info("sätter in dessa rader för stationen =>, " + readCSV.getTemperatureObject().getStationsNamn());
+                            log.info("Could read csv-file, rows = " + readCSV.getTemperatureObject().getTemperatureCSVList().size());
+                            log.info("Adding these rows for the station =>, " + readCSV.getTemperatureObject().getStationsNamn());
 
                             if (!skip){
-                                Inserter inserter = new Inserter(readCSV.getTemperatureObject());
+                                Inserter inserter = new Inserter();
+                                inserter.setTemperatureObject(readCSV.getTemperatureObject());
                                 inserter.insertData();
 
-                                log.info("Filen lästes in till databas.");
+                                log.info("File Was read to database.");
                             }
 
                             //Save to database...
@@ -117,7 +118,7 @@ public class DownloadWatcher {
 
                         } catch (IOException e) {
                             log.error(e.getMessage());
-                            System.out.println("Fel. Fortsätter bevaka katalog.");
+                            System.out.println("Error, still watching directory.");
                         }
 
 

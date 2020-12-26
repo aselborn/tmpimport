@@ -5,17 +5,121 @@ import helper.TemperatureObject;
 import helper.Util;
 
 import java.sql.*;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Inserter  {
 
+
+    private  List<SmhiParameters> m_SmhiParameters;
     private TemperatureObject m_TemperatureObject;
 
     private static String CONTAINS_MONTH = "månad";
     private boolean useSQLite = Boolean.parseBoolean(Util.readConfiguration("usesqlite"));
+    private List<Stations> m_stationList;
 
-    public Inserter(TemperatureObject temperatureObject){
+
+    public Inserter() {}
+
+    public void setTemperatureObject(TemperatureObject temperatureObject){
         m_TemperatureObject=temperatureObject;
+    }
+
+
+    public int insertStations() throws  SQLException{
+        int rowsInserted = -1;
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+        thisConnection.setAutoCommit(false);
+        int batchSize=100;
+        int insertCount = 0;
+
+        /*
+        CREATE TABLE "Stations" (
+	"StationId"	INTEGER NOT NULL,
+	"StationName"	TEXT NOT NULL,
+	"Latitud"	NUMERIC,
+	"Longitud"	NUMERIC,
+	"Height"	INTEGER,
+	"From"	TEXT,
+	"To"	TEXT,
+	"Active"	INTEGER NOT NULL,
+	PRIMARY KEY("StationId")
+)
+         */
+
+        String sqlInsert = "INSERT INTO Stations(StationId, StationName, Latitud, Longitud, Height, FromDateTime, ToDateTime, Active) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+        PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
+
+        try{
+            for( Stations prm : m_stationList){
+
+                pstmt.setInt(1, prm.getStationId());
+                pstmt.setString(2, prm.getStationName());
+                pstmt.setDouble(3, prm.getLatitud());
+                pstmt.setDouble(4, prm.getLongitud());
+                pstmt.setDouble(5, prm.getHeight());
+                pstmt.setLong(6, prm.getFromDateTime());
+                pstmt.setLong(7, prm.getToDateTime());
+                pstmt.setInt(8, prm.getActive());
+
+                pstmt.addBatch();
+
+                if (++insertCount % batchSize == 0){
+                    pstmt.executeBatch();
+                }
+
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        int[] n = pstmt.executeBatch();
+        thisConnection.commit();
+
+        rowsInserted=insertCount;
+
+        return rowsInserted;
+
+    }
+
+    public int insertSmhiParameters() throws SQLException {
+        int rowsInserted = -1;
+
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+        thisConnection.setAutoCommit(false);
+
+        int batchSize=100;
+        int insertCount = 0;
+
+        String sqlInsert = "INSERT INTO SmhiParameters(Key, Title, Summary) VALUES(?, ?, ?)";
+        PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
+
+        try{
+            for( SmhiParameters prm : m_SmhiParameters){
+
+                pstmt.setInt(1, prm.getKey());
+                pstmt.setString(2, prm.getTitle());
+                pstmt.setString(3, prm.getSummary());
+
+                pstmt.addBatch();
+
+                if (++insertCount % batchSize == 0){
+                    pstmt.executeBatch();
+                }
+
+            }
+        }
+        catch (SQLException e){
+            e.printStackTrace();
+        }
+
+        int[] n = pstmt.executeBatch();
+        thisConnection.commit();
+
+        rowsInserted=insertCount;
+
+        return rowsInserted;
+
     }
 
     public int insertData(){
@@ -40,6 +144,7 @@ public class Inserter  {
 
         return rowsInserted;
     }
+
 
     private int saveMonthData(int locationId) {
 
@@ -184,4 +289,11 @@ public class Inserter  {
     }
 
 
+    public void setSmhiParameters(List<SmhiParameters> smhiParameters) {
+        m_SmhiParameters=smhiParameters;
+    }
+
+    public void setStationList(List<Stations> stationsList) {
+        m_stationList = stationsList;
+    }
 }

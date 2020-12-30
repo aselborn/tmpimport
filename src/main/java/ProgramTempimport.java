@@ -1,9 +1,8 @@
-import com.opencsv.CSVParser;
 import dao.Fetcher;
 import dao.Inserter;
 import dao.SmhiParameters;
 import dao.Stations;
-import helper.ReadCSV;
+import helper.CsvScanner;
 import helper.RunConfiguration;
 import helper.Util;
 import org.apache.log4j.ConsoleAppender;
@@ -16,14 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smhi.JSONParse;
 
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Scanner;
-import java.util.stream.Stream;
 
 public class ProgramTempimport {
 
@@ -31,7 +26,7 @@ public class ProgramTempimport {
     private static String inputDirectory = null;
     private static Fetcher mFetcher = new Fetcher();
     private static List<Stations> stationsList;
-    public static void main(String[] args) throws IOException, SQLException {
+    public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 
 
 
@@ -79,6 +74,7 @@ public class ProgramTempimport {
 
 
                 //String StationNames = smhiApi.getStationNames("27");
+
                 //smhiApi.getPeriodNames("1", "71420");
 
                 //String actualData = smhiApi.getData("1", "71420", "latest-months"); //Ger 4 senaste månaderna.
@@ -89,10 +85,26 @@ public class ProgramTempimport {
 
                     //stationsList.stream().filter(h->h.getStationId() == conf.getStationId());
                     //Stations station = stationsList.stream().filter(j->j.getStationId() == conf.getStationId());
+                    if (conf.getEnabled() == 1){
 
-                    String data = smhiApi.getData(conf.getParameterId().toString(), conf.getStationId().toString(), conf.getName());
-                    //String actualData = smhiApi.getData("1", "71420", "latest-months"); //Ger 4 senaste månaderna.
-                    System.out.println(data);
+                        System.out.println("Data for station => ".concat( conf.getStationName()).concat(" period => ".concat(conf.getPeriodName() )));
+
+                        String data = smhiApi.getData(conf.getParameterId().toString(), conf.getStationId().toString(), conf.getPeriodName());
+                        //System.out.println(data);
+
+                        CsvScanner csvScanner = new CsvScanner(data);
+                        csvScanner.ScanCsv();
+
+                        inserter.save(csvScanner.getmTemperaturModel(), conf.getStationId(), conf.getParameterId(), conf.getPeriodId());
+
+                        System.out.println("...vantar...");
+
+                        Thread.sleep(5000);
+
+                    }
+
+
+
                 }
 
 

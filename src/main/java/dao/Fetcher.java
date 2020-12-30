@@ -4,7 +4,6 @@ import helper.RunConfiguration;
 import helper.Util;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -69,7 +68,9 @@ public class Fetcher {
 
     public List<RunConfiguration> getRunconfigList() {
         List<RunConfiguration> configs = new ArrayList<>();
-        String select =  "SELECT StationId, ParameterId, ParameterName FROM Run";
+        String select =  "SELECT r.StationId, ParameterId, PeriodName, enabled, s.StationName, p.PeriodId FROM RunConfig r" +
+                " INNER JOIN Stations s on r.StationId = s.StationId " +
+                " INNER JOIN Periods p ON p.PeriodId = r.PeriodId";
 
         Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
@@ -81,8 +82,10 @@ public class Fetcher {
 
                 conf.setStationId(rs.getInt(1));
                 conf.setParameterId(rs.getInt(2));
-                conf.setName(rs.getString(3));
-
+                conf.setPeriodName(rs.getString(3));
+                conf.setEnabled(rs.getInt(4));
+                conf.setStationName(rs.getString(5));
+                conf.setPeriodId(rs.getInt(6));
                 configs.add(conf);
             }
 

@@ -40,6 +40,7 @@ public class ReadCSV {
         temperatureObject = new TemperatureObject();
     }
 
+
     public void Read() throws IOException {
 
         CSVReader csvReader = new CSVReader(new FileReader(m_fileToRead));

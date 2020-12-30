@@ -3,6 +3,8 @@ package dao;
 import helper.TemperatureCSV;
 import helper.TemperatureObject;
 import helper.Util;
+import model.TemperaturData;
+import model.TemperaturModel;
 
 import java.sql.*;
 import java.util.List;
@@ -32,19 +34,7 @@ public class Inserter  {
         int batchSize=100;
         int insertCount = 0;
 
-        /*
-        CREATE TABLE "Stations" (
-	"StationId"	INTEGER NOT NULL,
-	"StationName"	TEXT NOT NULL,
-	"Latitud"	NUMERIC,
-	"Longitud"	NUMERIC,
-	"Height"	INTEGER,
-	"From"	TEXT,
-	"To"	TEXT,
-	"Active"	INTEGER NOT NULL,
-	PRIMARY KEY("StationId")
-)
-         */
+
 
         String sqlInsert = "INSERT INTO Stations(StationId, StationName, Latitud, Longitud, Height, FromDateTime, ToDateTime, Active) VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
         PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
@@ -295,5 +285,53 @@ public class Inserter  {
 
     public void setStationList(List<Stations> stationsList) {
         m_stationList = stationsList;
+    }
+
+    /*
+        Save some data to table Data
+     */
+    public void save(TemperaturModel temperaturModel, Integer stationId, Integer parameterId, Integer periodId) throws SQLException {
+
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+
+        String sqlTruncate ="DELETE from data WHERE StationId = ? AND PeriodId = ?";
+        PreparedStatement statement = thisConnection.prepareStatement(sqlTruncate);
+        statement.setInt(1, stationId);
+        statement.setInt(2, periodId);
+
+        int row = statement.executeUpdate();
+        System.out.println("Deleted ".concat(String.valueOf(row)).concat( " lines"));
+
+        String sql = "INSERT INTO Data(StationId, ParameterId, Temperature, DateValue, TimeValue, DateTimeValue, PeriodId)";
+        sql += " VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        thisConnection.setAutoCommit(false);
+        PreparedStatement pstmt = thisConnection.prepareStatement(sql);
+
+        int insertCount=0;
+        int batchSize=100;
+
+        for(TemperaturData data : temperaturModel.getmData()){
+
+            String dateTime = data.getDatum().concat(" ").concat(data.getKlockslag());
+
+            pstmt.setInt(1, stationId);
+            pstmt.setInt(2, parameterId);
+            pstmt.setDouble(3, data.getTemperatur());
+            pstmt.setString(4, data.getDatum());
+            pstmt.setString(5, data.getKlockslag());
+            pstmt.setString(6, dateTime);
+            pstmt.setInt(7, periodId);
+            pstmt.addBatch();
+
+            if (++insertCount % batchSize == 0){
+                pstmt.executeBatch();
+            }
+        }
+
+        int[] n = pstmt.executeBatch();
+        thisConnection.commit();
+
+
     }
 }

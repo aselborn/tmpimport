@@ -5,7 +5,6 @@ target/
 dependency-reduced-pom.xml
 *.csv
 *.jar
-tellstick.conf
 lighter.log.*
 nohup.out
 start-lighter.sh

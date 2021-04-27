@@ -334,4 +334,49 @@ public class Inserter  {
 
 
     }
+
+    public String deleteStation(int stationId) throws SQLException{
+        Connection connection = ConnectionManager.getSqliteConnected();
+        String sqlDelete = "Delete from RunConfig WHERE stationId = ?";
+        PreparedStatement pstmt = connection.prepareStatement(sqlDelete);
+        pstmt.setInt(1, stationId);
+
+        pstmt.execute();
+        return "Stationen togs bort. (om den fanns)";
+    }
+
+    public String insertStation(int stationId) throws SQLException {
+
+        Connection connection = ConnectionManager.getSqliteConnected();
+
+        String sqlSelect = "SELECT StationId from RunConfig WHERE StationId=?";
+
+        PreparedStatement pstmt = connection.prepareStatement(sqlSelect);
+        pstmt.setInt(1,stationId);
+
+        ResultSet rs = pstmt.executeQuery();
+        while (rs.next()){
+            return "Stationen finns redan.";
+        }
+
+        String sqlInsert = "INSERT INTO RunConfig(StationId, ParameterId, Enabled, PeriodId) ";
+        sqlInsert = sqlInsert.concat("VALUES(?,?,?,?)");
+
+        System.out.println(sqlInsert);
+
+        pstmt = connection.prepareStatement(sqlInsert);
+
+        for(int n = 1;n<=4; n++){
+            pstmt.setInt(1, stationId);
+            pstmt.setInt(2, 1);
+            pstmt.setInt(3, 1);
+            pstmt.setInt(4, n);
+
+            pstmt.addBatch();
+        }
+
+        pstmt.executeBatch();
+
+        return "Stationen lades till.";
+    }
 }

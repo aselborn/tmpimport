@@ -15,10 +15,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import smhi.JSONParse;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class ProgramTempimport {
 
@@ -26,13 +27,26 @@ public class ProgramTempimport {
     private static String inputDirectory = null;
     private static Fetcher mFetcher = new Fetcher();
     private static List<Stations> stationsList;
+
+
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
 
 
+        /*
+            202102 endast växlar
+         */
 
-        if (args.length==0){
+        List<String> argumentList = new ArrayList<>();
+        argumentList.add("--w");
+        argumentList.add("--s");
+        argumentList.add("--smhi");
+        argumentList.add("--d");
 
-            setupLogfile();
+        if (args.length==0) {
+
+            programInfo();
+
+ /*           setupLogfile();
             setupLog();
 
             inputDirectory = Util.readConfiguration("inputdirectory");
@@ -41,8 +55,16 @@ public class ProgramTempimport {
             log.info("Watching directory => " + inputDirectory);
 
             new DownloadWatcher(inputDirectory, false).processEvents();
-
+*/
         } else {
+
+            String argument = args[0];
+
+            if (!argumentList.contains(argument))
+            {
+                programInfo();
+                return;
+            }
 
             if (args[0].compareTo("--smhi") == 0){
 
@@ -73,10 +95,6 @@ public class ProgramTempimport {
 
 
 
-                //String StationNames = smhiApi.getStationNames("27");
-
-                //smhiApi.getPeriodNames("1", "71420");
-
                 //String actualData = smhiApi.getData("1", "71420", "latest-months"); //Ger 4 senaste månaderna.
                 //String actualData = smhiApi.getData("1", "71420", "corrected-archive"); //Ger 4 senaste månaderna.
                 //https://opendata-download-metobs.smhi.se/api/version/latest/parameter/1/station/71420
@@ -90,7 +108,11 @@ public class ProgramTempimport {
                         System.out.println("Data for station => ".concat( conf.getStationName()).concat(" period => ".concat(conf.getPeriodName() )));
 
                         String data = smhiApi.getData(conf.getParameterId().toString(), conf.getStationId().toString(), conf.getPeriodName());
-                        //System.out.println(data);
+
+                        if (data == null) {
+                            System.out.println("No Data. Continues.");
+                            continue;
+                        }
 
                         CsvScanner csvScanner = new CsvScanner(data);
                         csvScanner.ScanCsv();
@@ -109,29 +131,73 @@ public class ProgramTempimport {
 
 
             }
+            //WATCH
+            if (args[0].compareTo("--w") == 0){
 
-            if (args[0].compareTo("--f") == 0){
+                setupLogfile();
+                setupLog();
 
-                /*
-                System.out.println("Input file: ");
-                Console cn = System.console();
-                String userFile =cn.readLine();
-                System.out.println("Reading file " + userFile );
-                */
+                inputDirectory = Util.readConfiguration("inputdirectory");
 
-                String input = "c:/temp/uddevalla.csv";
-                File f = new File(input);
-                f.exists();
-                System.out.println(f.getAbsolutePath());
+                log.info("SMHI import, ver 0.1, starting " + DateTime.now());
+                log.info("Watching directory => " + inputDirectory);
+
+                new DownloadWatcher(inputDirectory, false).processEvents();
 
             }
 
+            //Ny station
+            if (args[0].compareTo("--s") == 0){
+               System.out.println("Lägga till ny station");
 
+                Scanner sc = new Scanner(System.in);
+                System.out.print("\tStationID : ");
+                int stationId = Integer.valueOf(sc.nextLine());
+
+                Inserter inserter = new Inserter();
+                String result = inserter.insertStation(stationId);
+
+                System.out.println("Resultat = " + result);
+
+
+            }
+            //Delete station
+            if (args[0].compareTo("--d") == 0){
+                System.out.println("Ta bort en station");
+
+                Scanner sc = new Scanner(System.in);
+                System.out.print("\tStationID : ");
+                int stationId = Integer.valueOf(sc.nextLine());
+
+                Inserter inserter = new Inserter();
+                String result = inserter.deleteStation(stationId);
+
+                System.out.println("Resultat = " + result);
+
+            }
         }
 
 
 
 
+
+    }
+
+
+
+    private static void programInfo() {
+
+        System.out.println();
+        System.out.println("Temperaturimport, ett litet program som importerar temperaturer från SMHI.");
+        System.out.println("Vänligen ange korrekt växel.");
+        System.out.println("Växel anges med två minustecken samt kommando exempelvis [--w]");
+        System.out.println("Tillgängliga växlar:");
+        System.out.println();
+        System.out.println("Vänligen ange korrekt växel.");
+        System.out.println("\tBevaka mapp: --w");
+        System.out.println("\tHämta data: --smhi");
+        System.out.println("\tLägg till station: --s");
+        System.out.println();
 
     }
 

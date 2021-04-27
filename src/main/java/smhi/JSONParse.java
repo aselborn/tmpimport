@@ -182,8 +182,17 @@ public class JSONParse {
      * @throws IOException
      * @throws JSONException
      */
-    public String getData(String parameterKey, String stationKey, String periodName) throws IOException {
-        return readStringFromUrl(metObsAPI + "/version/latest/parameter/" + parameterKey + "/station/" + stationKey + "/period/" + periodName + "/data.csv");
+    public String getData(String parameterKey, String stationKey, String periodName)  {
+        try{
+            return readStringFromUrl(metObsAPI + "/version/latest/parameter/" + parameterKey + "/station/" + stationKey + "/period/" + periodName + "/data.csv");
+        } catch(IOException e){
+            System.out.println(e);
+        } catch(Exception e){
+            System.out.println(e);
+        }
+
+        return null;
+
     }
 
 

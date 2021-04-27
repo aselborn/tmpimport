@@ -11,3 +11,4 @@ nohup.out
 start-lighter.sh
 lighter.sh
 SMHI-TEMPERATUR*
+db/temperature.db

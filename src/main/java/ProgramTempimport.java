@@ -18,6 +18,7 @@ import smhi.JSONParse;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -37,10 +38,11 @@ public class ProgramTempimport {
          */
 
         List<String> argumentList = new ArrayList<>();
-        argumentList.add("--w");
-        argumentList.add("--s");
-        argumentList.add("--smhi");
-        argumentList.add("--d");
+        //argumentList.add("--w");
+        argumentList.add("--s"); //Ny station
+        argumentList.add("--smhi"); //Hämta data via SMHI
+        argumentList.add("--d"); //Ta bort station
+        argumentList.add("--v"); //Lista stationer
 
         if (args.length==0) {
 
@@ -175,6 +177,23 @@ public class ProgramTempimport {
                 System.out.println("Resultat = " + result);
 
             }
+
+            //Visa stationer som hämtas (-v)
+            if(args[0].compareTo("--v") == 0 ){
+
+                System.out.println("Visar alla stationer som skall hämtas.");
+
+                Fetcher fetcher = new Fetcher();
+                List<Stations> myStations = fetcher.getStatonList();
+
+                List<RunConfiguration> config =  fetcher.getRunconfigList();
+
+                for (RunConfiguration c: config) {
+                    if (c.getEnabled() == 1)
+                        System.out.println("Hämtar station ".concat(c.getStationName()).concat(" parameter ".concat(c.getPeriodName())));
+                }
+
+            }
         }
 
 
@@ -182,8 +201,6 @@ public class ProgramTempimport {
 
 
     }
-
-
 
     private static void programInfo() {
 
@@ -197,6 +214,7 @@ public class ProgramTempimport {
         System.out.println("\tBevaka mapp: --w");
         System.out.println("\tHämta data: --smhi");
         System.out.println("\tLägg till station: --s");
+        System.out.println("\tVisa stationer som hämtas: --v");
         System.out.println();
 
     }

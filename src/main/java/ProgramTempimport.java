@@ -190,7 +190,7 @@ public class ProgramTempimport {
 
                 for (RunConfiguration c: config) {
                     if (c.getEnabled() == 1)
-                        System.out.println("Hämtar station ".concat(c.getStationName()).concat(" parameter ".concat(c.getPeriodName())));
+                        System.out.println("Hämtar station ".concat(c.getStationName()).concat(" parameter ".concat(c.getPeriodName())).concat(" stationId > ".concat(c.getStationId().toString())));
                 }
 
             }

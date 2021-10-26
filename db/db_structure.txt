@@ -1,0 +1,52 @@
+CREATE TABLE "Data" (
+	"DataId"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"StationId"	INTEGER NOT NULL,
+	"ParameterId"	INTEGER NOT NULL,
+	"Temperature"	NUMERIC NOT NULL,
+	"DateValue"	INTEGER,
+	"TimeValue"	INTEGER,
+	"DateTimeValue"	TEXT,
+	"PeriodId"	INTEGER
+)
+
+CREATE TABLE "Periods" (
+	"PeriodId"	INTEGER NOT NULL,
+	"PeriodName"	TEXT NOT NULL,
+	PRIMARY KEY("PeriodId")
+)
+
+CREATE TABLE "Run" (
+	"RunId"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"StationId"	INTEGER NOT NULL,
+	"ParameterId"	INTEGER NOT NULL,
+	"Enabled"	INTEGER,
+	"PeriodId"	INTEGER
+)
+
+CREATE TABLE "RunConfig" (
+	"RunId"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+	"StationId"	INTEGER NOT NULL,
+	"ParameterId"	INTEGER NOT NULL,
+	"Enabled"	INTEGER NOT NULL,
+	"PeriodId"	INTEGER NOT NULL,
+	FOREIGN KEY("PeriodId") REFERENCES "Periods"("PeriodId")
+)
+
+CREATE TABLE "SmhiParameters" (
+	"KeyId"	INTEGER NOT NULL,
+	"Title"	TEXT NOT NULL,
+	"Summary"	TEXT,
+	PRIMARY KEY("KeyId")
+)
+
+CREATE TABLE "Stations" (
+	"StationId"	INTEGER NOT NULL,
+	"StationName"	TEXT NOT NULL,
+	"Latitud"	NUMERIC,
+	"Longitud"	NUMERIC,
+	"Height"	INTEGER,
+	"FromDateTime"	TEXT,
+	"ToDateTime"	TEXT,
+	"Active"	INTEGER NOT NULL,
+	PRIMARY KEY("StationId")
+)

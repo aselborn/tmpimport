@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/nrobl/source/repos/tmpimport/db/Temperature.db" readonly="0" foreign_keys="" case_sensitive_like="" temp_store="" wal_autocheckpoint="" synchronous=""/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1629"/><column_width id="4" width="0"/></tab_structure><tab_browse><current_table name="0,0:"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/nrobl/source/repos/tmpimport/db/Temperature.db" readonly="0" foreign_keys="0" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="0" synchronous="1"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="1629"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,4:mainData"/><default_encoding codec=""/><browse_table_settings/></tab_browse><tab_sql><sql name="SQL 1">
 
 select date('now', 'localtime')
 SELECT strftime('%Y-%m-%d %H:%M:%S', 'now');
@@ -53,13 +53,13 @@ select avg(temperature) from data where StationId='71380'  and strftime('%m', Da
 
 select avg(temperature) from data where StationId='71380'  and strftime('%m', DateTimeValue) = '06' AND strftime('%Y', DateTimeValue) = '2021'
 select avg(temperature) from data where StationId='71380'  and strftime('%m', DateTimeValue) = '06' AND strftime('%Y', DateTimeValue) = '2020'
-select avg(temperature) from data where StationId='71380'  and strftime('%m', DateTimeValue) = '06' AND strftime('%Y', DateTimeValue) = '2019'
-
---MALMÖ SEP
-
-select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '10' AND strftime('%Y', DateTimeValue) = '2021'
-select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '10' AND strftime('%Y', DateTimeValue) = '2020'
-select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '11' AND strftime('%Y', DateTimeValue) = '2019'
+select avg(temperature) from data where StationId='71380'  and strftime('%m', DateTimeValue) = '06' AND strftime('%Y', DateTimeValue) = '2019'
+
+--MALMÖ SEP
+
+select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '10' AND strftime('%Y', DateTimeValue) = '2021'
+select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '10' AND strftime('%Y', DateTimeValue) = '2020'
+select avg(temperature) from data where StationId='52350'  and strftime('%m', DateTimeValue) = '11' AND strftime('%Y', DateTimeValue) = '2019'
 
 
 --Medeltemperatur en viss månad, ett visst år för en viss station 
@@ -68,4 +68,30 @@ Group by DateTimeValue
 order by Temperature desc
 </sql><sql name="SQL 7">select temperature, DateValue  from data where StationId = '71420' and Temperature &gt; '30.0'
 group by DateValue
-order by datevalue desc </sql><current_tab id="4"/></tab_sql></sqlb_project>
+order by datevalue desc </sql><sql name="SQL 8">select * From Stations where StationName like 'Vi%'
+
+select * from data where StationId = '71380'
+
+select avg(temperature) as medeltemp,  DateTimeValue from data where strftime('%m', DateTimeValue) = '10'  AND StationId = '71380'
+Group by DateTimeValue
+order by Temperature desc
+
+--Medeltemperatur för en viss månad under ett visst tidsspann.
+select AVG(Temperature) as medeltemp, 
+       strftime(&quot;%m-%Y&quot;, DateTimeValue) as 'month-year' 
+       from data where StationId = '71380' and DateTimeValue BETWEEN '1950' AND '1970'
+	
+		and strftime('%m', datetimevalue) = '12'
+	
+	   group by strftime(&quot;%m-%Y&quot;, DateTimeValue)
+	   order by avg(temperature) DESC;
+	   --order by strftime(&quot;%m-%Y&quot;, DateTimeValue) DESC
+	   
+	   
+select AVG(Temperature) as medeltemp, 
+       strftime(&quot;%m&quot;, DateTimeValue) as 'month-year' 
+       from data where StationId = '71380' and DateTimeValue &gt; '1970'
+	   
+	
+	   group by strftime(&quot;%m&quot;, DateTimeValue)
+	   order by strftime(&quot;%m&quot;, DateTimeValue) DESC</sql><current_tab id="6"/></tab_sql></sqlb_project>

@@ -21,8 +21,17 @@ public class ConnectionManager {
                 return myConnection;
             }
 
-            Class.forName("com.mysql.jdbc.Driver");
-            return DriverManager.getConnection("jdbc:mysql://localhost/Temperature?user=root&password=lytill53");
+            String url = "jdbc:mysql://localhost/temperature?";
+            String user = "root";
+            String pwd = "lytill53";
+
+            //Class.forName("com.mysql.jdbc.Driver");
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            DriverManager.getDriver(url);
+
+            myConnection = DriverManager.getConnection(url, user, pwd);
+            return myConnection;
+            //return DriverManager.getConnection("jdbc:mysql://localhost/temperature?user=root&password=lytill53");
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

@@ -8,6 +8,7 @@ import model.TemperaturModel;
 
 import java.sql.*;
 import java.util.List;
+import java.util.Locale;
 
 public class Inserter  {
 
@@ -82,6 +83,9 @@ public class Inserter  {
         int insertCount = 0;
 
         String sqlInsert = "INSERT INTO SmhiParameters(Key, Title, Summary) VALUES(?, ?, ?)";
+        if (!useSQLite){
+            sqlInsert = sqlInsert.toLowerCase(Locale.ROOT).replace("key", "KeyId");
+        }
         PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
 
         try{
@@ -347,9 +351,11 @@ public class Inserter  {
 
     public String insertStation(int stationId) throws SQLException {
 
-        Connection connection = ConnectionManager.getSqliteConnected();
+        Connection connection = useSQLite ?  ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
         String sqlSelect = "SELECT StationId from RunConfig WHERE StationId=?";
+        if (!useSQLite)
+            sqlSelect = sqlSelect.replace("RunConfig", "runconfig");
 
         PreparedStatement pstmt = connection.prepareStatement(sqlSelect);
         pstmt.setInt(1,stationId);

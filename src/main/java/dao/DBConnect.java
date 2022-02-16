@@ -1,5 +1,6 @@
 package dao;
 
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -8,6 +9,7 @@ import java.util.Properties;
 public abstract class DBConnect {
 
     private static Connection mConnection;
+    private static Connection mMySqlConnection;
 
     public static Connection getConnection() throws ClassNotFoundException, SQLException {
 
@@ -27,6 +29,27 @@ public abstract class DBConnect {
 
         return mConnection;
 
+    }
+
+    public static Connection getMySqlConnection() throws ClassNotFoundException, SQLException{
+
+        if (mMySqlConnection == null){
+
+            String mysqlUrl = "jdbc:mysql://localhost:3306/temperature";
+            String user = "root";
+            String pwd = "lytill53";
+            Connection cn = null;
+
+            try{
+                mMySqlConnection = DriverManager.getConnection(mysqlUrl, user, pwd);
+                return mMySqlConnection;
+            } catch (Exception e){
+                e.printStackTrace();
+                return null;
+            }
+
+        }
+        return null;
     }
 
     /*

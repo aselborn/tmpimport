@@ -2,6 +2,8 @@ package dao;
 
 import helper.RunConfiguration;
 import helper.Util;
+import model.SmhiPeriods;
+import model.Stations;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -97,6 +99,22 @@ public class Fetcher {
         return configs;
     }
 
+    public List<SmhiPeriods> getSmhiPeriods() throws SQLException {
+        List<SmhiPeriods> periodsList = new ArrayList<>();
+        String sql ="Select PeriodId, PeriodName From Periods order by PeriodId";
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+
+        ResultSet rs = thisConnection.createStatement().executeQuery(sql);
+
+        while (rs.next()){
+            SmhiPeriods periods = new SmhiPeriods();
+            periods.setPeriodId(rs.getInt(1));
+            periods.setPeriodName(rs.getString(2));
+
+            periodsList.add(periods);
+        }
+        return periodsList;
+    }
     public List<Stations> getStatonList() throws SQLException {
         List<Stations> stationsList = new ArrayList<>();
 

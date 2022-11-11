@@ -1,7 +1,9 @@
 import dao.Fetcher;
 import dao.Inserter;
 import dao.SmhiParameters;
-import dao.Stations;
+import dao.Updater;
+import model.SmhiPeriods;
+import model.Stations;
 import helper.CsvScanner;
 import helper.RunConfiguration;
 import helper.Util;
@@ -18,7 +20,6 @@ import smhi.JSONParse;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -43,7 +44,9 @@ public class ProgramTempimport {
         argumentList.add("--smhi"); //Hämta data via SMHI
         argumentList.add("--d"); //Ta bort station
         argumentList.add("--v"); //Lista stationer
-
+        argumentList.add("--p"); //Lista vad perioder betyder
+        argumentList.add("--x"); //Stäng av alla stationer som hämtas (runconfig 0)
+        argumentList.add("--y"); //Hämta en viss station
         if (args.length==0) {
 
             programInfo();
@@ -194,6 +197,36 @@ public class ProgramTempimport {
                 }
 
             }
+
+            if (args[0].compareTo("--p") == 0){
+                System.out.println("Perioder ");
+                List<SmhiPeriods> periods = new Fetcher().getSmhiPeriods();
+                for(SmhiPeriods per : periods){
+                    System.out.println("Id: " + per.getPeriodId() + ", Period: = " + per.getPeriodName());
+                }
+            }
+
+            if (args[0].compareTo("--x") == 0){
+                System.out.println("Stänger alla hämtningar.");
+               new Updater().CloseAllRuns();
+            }
+
+            if (args[0].compareTo("--y") == 0){
+
+                Console cnsl = System.console();
+                if (cnsl == null){
+                    System.out.println("Ingen konsol!.");
+                    return;
+                }
+
+                String str = cnsl.readLine("Vilken station ?: ");
+                String period = cnsl.readLine("Vilken period 1, 2, 3, 4 eller alla (A) ? :");
+
+                System.out.println("Du vill hämta för ".concat(str).concat(" och för perioden ").concat(period));
+
+                new Updater().UpdateRunconfig(Integer.parseInt(str), Integer.parseInt(period));
+
+            }
         }
 
 
@@ -215,6 +248,9 @@ public class ProgramTempimport {
         System.out.println("\tHämta data: --smhi");
         System.out.println("\tLägg till station: --s");
         System.out.println("\tVisa stationer som hämtas: --v");
+        System.out.println("\tVisa perioder som hämtas: --p");
+        System.out.println("\tStäng av alla hämtningar: --x");
+        System.out.println("\tAnge station som skall hämtas: --y");
         System.out.println();
 
     }

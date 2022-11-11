@@ -4,13 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.*;
 
 import dao.SmhiParameters;
-import dao.Stations;
+import model.Stations;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

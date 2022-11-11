@@ -3,6 +3,7 @@ package dao;
 import helper.TemperatureCSV;
 import helper.TemperatureObject;
 import helper.Util;
+import model.Stations;
 import model.TemperaturData;
 import model.TemperaturModel;
 

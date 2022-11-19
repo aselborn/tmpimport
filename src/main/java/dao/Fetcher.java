@@ -1,9 +1,11 @@
 package dao;
 
+import helper.CsvScanner;
 import helper.RunConfiguration;
 import helper.Util;
 import model.SmhiPeriods;
 import model.Stations;
+import smhi.JSONParse;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -139,6 +141,73 @@ public class Fetcher {
 
 
         return stationsList;
+
+    }
+
+    public void FetchAll() throws SQLException, InterruptedException {
+        Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
+
+        List<Stations> stationsList = new ArrayList<>();
+
+        String sql ="select stationId, StationName from stations s  where s.StationId  not in (select StationId from data )";
+        ResultSet rs= thisConnection.createStatement().executeQuery(sql);
+
+        Inserter inserter = new Inserter();
+
+        System.out.println("Requesting parameters...");
+        JSONParse smhiApi = new JSONParse();
+
+        while (rs.next()){
+            System.out.println("Hämtar " + rs.getString(2));
+
+            String data = smhiApi.getData("1", rs.getString(1), "corrected-archive");
+            if (data == null) {
+                System.out.println("No Data. Continues.");
+                continue;
+            }
+
+            CsvScanner csvScanner = new CsvScanner(data);
+            csvScanner.ScanCsv();
+
+            inserter.save(csvScanner.getmTemperaturModel(), rs.getInt(1), 1, 4);
+
+            System.out.println("...Vänta 7 sek...");
+
+
+            Thread.sleep(7000);
+
+        }
+        /*
+        for (RunConfiguration conf : configurationList) {
+
+                    //stationsList.stream().filter(h->h.getStationId() == conf.getStationId());
+                    //Stations station = stationsList.stream().filter(j->j.getStationId() == conf.getStationId());
+                    if (conf.getEnabled() == 1){
+
+                        System.out.println("Data for station => ".concat( conf.getStationName()).concat(" period => ".concat(conf.getPeriodName() )));
+
+                        String data = smhiApi.getData(conf.getParameterId().toString(), conf.getStationId().toString(), conf.getPeriodName());
+
+                        if (data == null) {
+                            System.out.println("No Data. Continues.");
+                            continue;
+                        }
+
+                        CsvScanner csvScanner = new CsvScanner(data);
+                        csvScanner.ScanCsv();
+
+                        inserter.save(csvScanner.getmTemperaturModel(), conf.getStationId(), conf.getParameterId(), conf.getPeriodId());
+
+                        System.out.println("...vantar...");
+
+                        Thread.sleep(5000);
+
+                    }
+
+
+
+                }
+         */
 
     }
 }

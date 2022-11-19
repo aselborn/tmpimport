@@ -22,6 +22,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class ProgramTempimport {
 
@@ -39,7 +40,7 @@ public class ProgramTempimport {
          */
 
         List<String> argumentList = new ArrayList<>();
-        //argumentList.add("--w");
+        argumentList.add("--all");
         argumentList.add("--s"); //Ny station
         argumentList.add("--smhi"); //Hämta data via SMHI
         argumentList.add("--d"); //Ta bort station
@@ -69,6 +70,12 @@ public class ProgramTempimport {
             {
                 programInfo();
                 return;
+            }
+
+            if (args[0].compareTo("--all") == 0) {
+
+                System.out.println("Hämtar alla stationer...! (corrected archive");
+                new Fetcher().FetchAll();
             }
 
             if (args[0].compareTo("--smhi") == 0){
@@ -162,7 +169,8 @@ public class ProgramTempimport {
                 Inserter inserter = new Inserter();
                 String result = inserter.insertStation(stationId);
 
-                System.out.println("Resultat = " + result);
+//                Stream<Stations> stationsStream =  new Fetcher().getStatonList().stream().filter(p->p.getStationId() == stationId);
+
 
 
             }
@@ -223,6 +231,16 @@ public class ProgramTempimport {
                 String period = cnsl.readLine("Vilken period 1, 2, 3, 4 eller alla (A) ? :");
 
                 System.out.println("Du vill hämta för ".concat(str).concat(" och för perioden ").concat(period));
+
+                //if ( !period.equals("1") || !period.equals("2") || !period.equals("3") || !period.equals("4") || !period.equals("A")){
+                /*if ( (period != "1" ) || (period != "2") || (period != "3") || (period != "4") || (period != "A"))
+                    System.out.println("Fel period.");
+                    return;
+                }*/
+
+                if (period.equals("A")){
+                    period = "5";
+                }
 
                 new Updater().UpdateRunconfig(Integer.parseInt(str), Integer.parseInt(period));
 

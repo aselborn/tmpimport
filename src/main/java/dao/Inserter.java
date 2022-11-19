@@ -295,47 +295,84 @@ public class Inserter  {
     /*
         Save some data to table Data
      */
-    public void save(TemperaturModel temperaturModel, Integer stationId, Integer parameterId, Integer periodId) throws SQLException {
+    public void save(TemperaturModel temperaturModel, Integer stationId, Integer parameterId, Integer periodId)  {
 
         Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
         String sqlTruncate ="DELETE from data WHERE StationId = ? AND PeriodId = ?";
-        PreparedStatement statement = thisConnection.prepareStatement(sqlTruncate);
-        statement.setInt(1, stationId);
-        statement.setInt(2, periodId);
 
-        int row = statement.executeUpdate();
-        System.out.println("Deleted ".concat(String.valueOf(row)).concat( " lines"));
+        try{
+            PreparedStatement statement = thisConnection.prepareStatement(sqlTruncate);
+            statement.setInt(1, stationId);
+            statement.setInt(2, periodId);
 
-        String sql = "INSERT INTO Data(StationId, ParameterId, Temperature, DateValue, TimeValue, DateTimeValue, PeriodId)";
-        sql += " VALUES (?, ?, ?, ?, ?, ?, ?)";
+            int row = statement.executeUpdate();
+            System.out.println("Deleted ".concat(String.valueOf(row)).concat( " lines"));
 
-        thisConnection.setAutoCommit(false);
-        PreparedStatement pstmt = thisConnection.prepareStatement(sql);
+            String sqlInsertLite = "INSERT INTO Data(StationId, ParameterId, Temperature, DateValue, TimeValue, DateTimeValue, PeriodId)";
+            sqlInsertLite += " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        int insertCount=0;
-        int batchSize=100;
+            String sqlMysql =  "INSERT INTO Data(StationId, ParameterId, Temperature, DateTimeValue, PeriodId)";
+            sqlMysql += " VALUES (?, ?, ?, ?, ?)";
 
-        for(TemperaturData data : temperaturModel.getmData()){
+            thisConnection.setAutoCommit(false);
+            PreparedStatement pstmt =  null;
 
-            String dateTime = data.getDatum().concat(" ").concat(data.getKlockslag());
+            if (useSQLite)
+                pstmt = thisConnection.prepareStatement(sqlInsertLite);
+            else
+                pstmt = thisConnection.prepareStatement(sqlMysql);
 
-            pstmt.setInt(1, stationId);
-            pstmt.setInt(2, parameterId);
-            pstmt.setDouble(3, data.getTemperatur());
-            pstmt.setString(4, data.getDatum());
-            pstmt.setString(5, data.getKlockslag());
-            pstmt.setString(6, dateTime);
-            pstmt.setInt(7, periodId);
-            pstmt.addBatch();
+            int insertCount=0;
+            int batchSize=100;
 
-            if (++insertCount % batchSize == 0){
-                pstmt.executeBatch();
+            if (useSQLite){
+                for(TemperaturData data : temperaturModel.getmData()){
+
+                    String dateTime = data.getDatum().concat(" ").concat(data.getKlockslag());
+
+                    pstmt.setInt(1, stationId);
+                    pstmt.setInt(2, parameterId);
+                    pstmt.setDouble(3, data.getTemperatur());
+                    pstmt.setString(4, data.getDatum());
+                    pstmt.setString(5, data.getKlockslag());
+                    pstmt.setString(6, dateTime);
+                    pstmt.setInt(7, periodId);
+                    pstmt.addBatch();
+
+                    if (++insertCount % batchSize == 0){
+                        pstmt.executeBatch();
+                    }
+                }
+            } else{
+                for(TemperaturData data : temperaturModel.getmData()){
+
+                    String dateTime = data.getDatum().concat(" ").concat(data.getKlockslag());
+
+                    pstmt.setInt(1, stationId);
+                    pstmt.setInt(2, parameterId);
+                    pstmt.setDouble(3, data.getTemperatur());
+                    pstmt.setString(4, dateTime);
+                    pstmt.setInt(5, periodId);
+                    pstmt.addBatch();
+
+                    if (++insertCount % batchSize == 0){
+                        pstmt.executeBatch();
+                    }
+                }
             }
-        }
 
-        int[] n = pstmt.executeBatch();
-        thisConnection.commit();
+
+
+            int[] n = pstmt.executeBatch();
+            thisConnection.commit();
+
+        }
+        catch (SQLException sex){
+
+            System.out.println(sex.toString());
+
+        }
 
 
     }

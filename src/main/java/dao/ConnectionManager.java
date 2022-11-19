@@ -22,8 +22,11 @@ public class ConnectionManager {
             }
 
             String url = "jdbc:mysql://localhost/temperature?";
+            //String url = "jdbc:mysql://192.168.86.42/temperature?";
             String user = "root";
+            //String user = "remote";
             String pwd = "lytill53";
+            //String pwd = "lytill53ZYX";
 
             //Class.forName("com.mysql.jdbc.Driver");
             Class.forName("com.mysql.cj.jdbc.Driver");

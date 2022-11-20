@@ -21,6 +21,7 @@ public class Inserter  {
     private boolean useSQLite = Boolean.parseBoolean(Util.readConfiguration("usesqlite"));
     private List<Stations> m_stationList;
 
+    Connection _thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
     public Inserter() {}
 
@@ -83,10 +84,13 @@ public class Inserter  {
         int batchSize=100;
         int insertCount = 0;
 
-        String sqlInsert = "INSERT INTO SmhiParameters(Key, Title, Summary) VALUES(?, ?, ?)";
+        String sqlInsert = "INSERT INTO SmhiParameters(KeyId, Title, Summary) VALUES(?, ?, ?)";
+        /*
         if (!useSQLite){
             sqlInsert = sqlInsert.toLowerCase(Locale.ROOT).replace("key", "KeyId");
-        }
+        } */
+
+
         PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
 
         try{
@@ -295,10 +299,9 @@ public class Inserter  {
     /*
         Save some data to table Data
      */
-    public void save(TemperaturModel temperaturModel, Integer stationId, Integer parameterId, Integer periodId)  {
+    public synchronized void save(TemperaturModel temperaturModel, Integer stationId, Integer parameterId, Integer periodId)  {
 
         Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
-
         String sqlTruncate ="DELETE from data WHERE StationId = ? AND PeriodId = ?";
 
         try{
@@ -368,7 +371,6 @@ public class Inserter  {
 
             int[] n = pstmt.executeBatch();
             thisConnection.commit();
-
         }
         catch (SQLException sex){
 

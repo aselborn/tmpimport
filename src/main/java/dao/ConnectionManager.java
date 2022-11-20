@@ -1,5 +1,6 @@
 package dao;
 
+import helper.Util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,7 +53,8 @@ public class ConnectionManager {
 
         try {
             Class.forName("org.sqlite.JDBC");
-            return DriverManager.getConnection("jdbc:sqlite:db/temperature.db");
+            String dbName = Util.readConfiguration("dbname");
+            return DriverManager.getConnection("jdbc:sqlite:" + dbName);
 
         } catch (ClassNotFoundException e) {
             e.printStackTrace();

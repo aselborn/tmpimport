@@ -31,8 +31,6 @@ public class Fetcher {
                 count =rs.getInt(1);
             }
 
-
-
         } catch(Exception e){
             e.printStackTrace();
         }
@@ -148,14 +146,11 @@ public class Fetcher {
         Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
         List<Stations> stationsList = new ArrayList<>();
+        int sleepTime = 1000;
 
-        String sql ="select stationId, StationName from stations s  where s.StationId  not in (select StationId from data )";
-        ResultSet rs= thisConnection.createStatement().executeQuery(sql);
+        String sql = "";
 
-        Inserter inserter = new Inserter();
 
-        System.out.println("Requesting parameters...");
-        JSONParse smhiApi = new JSONParse();
 
         String periodName = "";
         int periodId = 0;
@@ -164,21 +159,35 @@ public class Fetcher {
             case "-LM" :
                 periodName = "latest-months";
                 periodId=3;
+                sleepTime = 3000;
+                sql = "select stationId, StationName from stations s";
             break;
             case "-LD" :
                 periodName = "latest-day";
                 periodId=2;
+                sleepTime = 2000;
+                sql = "select stationId, StationName from stations s";
             break;
             case "-LH" :
                 periodName = "latest-hour";
                 periodId=1;
+                sleepTime = 1000;
+                sql = "select stationId, StationName from stations s";
             break;
             case "-C" :
                 periodId=4;
                 periodName = "corrected-archive";
+                sleepTime = 7000;
+                sql ="select stationId, StationName from stations s  where s.StationId  not in (select StationId from data )";
             break;
         }
 
+        Inserter inserter = new Inserter();
+
+        System.out.println("Requesting parameters...");
+        JSONParse smhiApi = new JSONParse();
+
+        ResultSet rs= thisConnection.createStatement().executeQuery(sql);
         while (rs.next()){
 
             System.out.println("Hämtar " + rs.getString(2) + " ==>" + periodName);
@@ -195,10 +204,10 @@ public class Fetcher {
 
             inserter.save(csvScanner.getmTemperaturModel(), rs.getInt(1), 1, periodId);
 
-            System.out.println("...Väntar 7 sek...");
+            System.out.println("...Väntar..." + String.valueOf(sleepTime));
 
 
-            Thread.sleep(7000);
+            Thread.sleep(sleepTime);
 
         }
         /*

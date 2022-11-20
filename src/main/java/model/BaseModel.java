@@ -22,8 +22,6 @@ public abstract class BaseModel {
         this.enhet = enhet;
     }
 
-
-
     public String getParameterNamn() {
         return parameterNamn;
     }

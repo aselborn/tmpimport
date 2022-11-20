@@ -2,6 +2,7 @@ import dao.Fetcher;
 import dao.Inserter;
 import dao.SmhiParameters;
 import dao.Updater;
+import helper.CreateSQLiteDB;
 import model.SmhiPeriods;
 import model.Stations;
 import helper.CsvScanner;
@@ -31,10 +32,12 @@ public class ProgramTempimport {
     private static Fetcher mFetcher = new Fetcher();
     private static List<Stations> stationsList;
 
+    private static JSONParse smhiApi = new JSONParse();
+    private static Inserter inserter = new Inserter();
+    private int rowCount = 0;
+    private static boolean useSQLite = Boolean.parseBoolean(Util.readConfiguration("usesqlite"));
 
     public static void main(String[] args) throws IOException, SQLException, InterruptedException {
-
-
         /*
             202102 endast växlar
          */
@@ -55,20 +58,13 @@ public class ProgramTempimport {
         subArgumentList.add("-LD");
         subArgumentList.add("-LH");
 
+
+        setupDataBase();
+        checkStationList();
+
+
         if (args.length==0) {
-
             programInfo();
-
- /*           setupLogfile();
-            setupLog();
-
-            inputDirectory = Util.readConfiguration("inputdirectory");
-
-            log.info("SMHI import, ver 0.1, starting " + DateTime.now());
-            log.info("Watching directory => " + inputDirectory);
-
-            new DownloadWatcher(inputDirectory, false).processEvents();
-*/
         } else {
 
             String argument = args[0];
@@ -106,11 +102,8 @@ public class ProgramTempimport {
 
                 List<RunConfiguration> configurationList = mFetcher.getRunconfigList();
                 stationsList = mFetcher.getStatonList();
-
-                Inserter inserter = new Inserter();
-
                 System.out.println("Requesting parameters...");
-                JSONParse smhiApi = new JSONParse();
+
 
                 if (mFetcher.TableCount("SmhiParameters") == 0){
 
@@ -121,16 +114,7 @@ public class ProgramTempimport {
 
                 }
 
-                if (stationsList.size() == 0){
-
-                    stationsList = smhiApi.getStations("1");
-                    inserter.setStationList(stationsList);
-                    int rows = inserter.insertStations();
-
-                }
-
-
-
+                checkStationList();
                 //String actualData = smhiApi.getData("1", "71420", "latest-months"); //Ger 4 senaste månaderna.
                 //String actualData = smhiApi.getData("1", "71420", "corrected-archive"); //Ger 4 senaste månaderna.
                 //https://opendata-download-metobs.smhi.se/api/version/latest/parameter/1/station/71420
@@ -161,8 +145,6 @@ public class ProgramTempimport {
 
                     }
 
-
-
                 }
 
 
@@ -192,10 +174,6 @@ public class ProgramTempimport {
 
                 Inserter inserter = new Inserter();
                 String result = inserter.insertStation(stationId);
-
-//                Stream<Stations> stationsStream =  new Fetcher().getStatonList().stream().filter(p->p.getStationId() == stationId);
-
-
 
             }
             //Delete station
@@ -256,12 +234,6 @@ public class ProgramTempimport {
 
                 System.out.println("Du vill hämta för ".concat(str).concat(" och för perioden ").concat(period));
 
-                //if ( !period.equals("1") || !period.equals("2") || !period.equals("3") || !period.equals("4") || !period.equals("A")){
-                /*if ( (period != "1" ) || (period != "2") || (period != "3") || (period != "4") || (period != "A"))
-                    System.out.println("Fel period.");
-                    return;
-                }*/
-
                 if (period.equals("A")){
                     period = "5";
                 }
@@ -270,10 +242,46 @@ public class ProgramTempimport {
 
             }
         }
+    }
 
 
+    private static void setupDataBase() {
+        if (!useSQLite) return;
+
+        String sqliteDB = Util.readConfiguration("dbname");
+
+        if (! new File(sqliteDB).exists()) {
+            CreateSQLiteDB.createDB(sqliteDB);
+
+            CreateSQLiteDB.createTableData(sqliteDB);
+            CreateSQLiteDB.createTableRunConfig(sqliteDB);
+            CreateSQLiteDB.createTablePeriods(sqliteDB);
+            CreateSQLiteDB.createTableSmhiParameters(sqliteDB);
+            CreateSQLiteDB.createTableStations(sqliteDB);
+
+            System.out.println("Databas och tabeller skapade.");
+
+            CreateSQLiteDB.insertPeriods(sqliteDB);
+
+        }
 
 
+    }
+
+    private static void checkStationList() throws IOException, SQLException {
+        if (mFetcher.getStatonList().size() == 0){
+
+            stationsList = smhiApi.getStations("1");
+
+            if (stationsList.size() > 0){
+                System.out.println("Hämtar stationer!");
+                inserter.setStationList(stationsList);
+                int rows = inserter.insertStations();
+                System.out.println("Hämtade och sparade " + rows + " stationer.");
+            } else{
+
+            }
+        }
 
     }
 

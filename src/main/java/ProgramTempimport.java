@@ -48,6 +48,13 @@ public class ProgramTempimport {
         argumentList.add("--p"); //Lista vad perioder betyder
         argumentList.add("--x"); //Stäng av alla stationer som hämtas (runconfig 0)
         argumentList.add("--y"); //Hämta en viss station
+
+        List<String> subArgumentList = new ArrayList<>();
+        subArgumentList.add("-C");
+        subArgumentList.add("-LM");
+        subArgumentList.add("-LD");
+        subArgumentList.add("-LH");
+
         if (args.length==0) {
 
             programInfo();
@@ -74,8 +81,25 @@ public class ProgramTempimport {
 
             if (args[0].compareTo("--all") == 0) {
 
-                System.out.println("Hämtar alla stationer...! (corrected archive");
-                new Fetcher().FetchAll();
+                String select = "";
+
+                if (args.length < 2){
+                    System.out.println("ALla stationer för viss parameter hämtas. Växel måste anges");
+                    System.out.println("-C (Corrected Archive)");
+                    System.out.println("-LM (Latest Months)");
+                    System.out.println("-LD (Latest Days)");
+                    System.out.println("-LH (Latest Hours)");
+                    return;
+                } else {
+
+                    select = args[1].toString();
+                    if (!subArgumentList.contains(select)){
+                        System.out.println("Ej giltligt tilläggsargument.");
+                        return;
+                    }
+                }
+
+                new Fetcher().FetchAll(select);
             }
 
             if (args[0].compareTo("--smhi") == 0){
@@ -263,6 +287,7 @@ public class ProgramTempimport {
         System.out.println();
         System.out.println("Vänligen ange korrekt växel.");
         System.out.println("\tBevaka mapp: --w");
+        System.out.println("\tHämta all för parameter data: --all");
         System.out.println("\tHämta data: --smhi");
         System.out.println("\tLägg till station: --s");
         System.out.println("\tVisa stationer som hämtas: --v");

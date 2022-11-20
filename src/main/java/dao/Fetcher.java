@@ -144,7 +144,7 @@ public class Fetcher {
 
     }
 
-    public void FetchAll() throws SQLException, InterruptedException {
+    public void FetchAll(String argumentPeriod) throws SQLException, InterruptedException {
         Connection thisConnection = useSQLite ? ConnectionManager.getSqliteConnected() : ConnectionManager.getConnected();
 
         List<Stations> stationsList = new ArrayList<>();
@@ -157,10 +157,33 @@ public class Fetcher {
         System.out.println("Requesting parameters...");
         JSONParse smhiApi = new JSONParse();
 
-        while (rs.next()){
-            System.out.println("Hämtar " + rs.getString(2));
+        String periodName = "";
+        int periodId = 0;
 
-            String data = smhiApi.getData("1", rs.getString(1), "corrected-archive");
+        switch (argumentPeriod){
+            case "-LM" :
+                periodName = "latest-months";
+                periodId=3;
+            break;
+            case "-LD" :
+                periodName = "latest-day";
+                periodId=2;
+            break;
+            case "-LH" :
+                periodName = "latest-hour";
+                periodId=1;
+            break;
+            case "-C" :
+                periodId=4;
+                periodName = "corrected-archive";
+            break;
+        }
+
+        while (rs.next()){
+
+            System.out.println("Hämtar " + rs.getString(2) + " ==>" + periodName);
+            String data = smhiApi.getData("1", rs.getString(1), periodName);
+
             if (data == null) {
                 System.out.println("No Data. Continues.");
                 continue;
@@ -169,9 +192,10 @@ public class Fetcher {
             CsvScanner csvScanner = new CsvScanner(data);
             csvScanner.ScanCsv();
 
-            inserter.save(csvScanner.getmTemperaturModel(), rs.getInt(1), 1, 4);
 
-            System.out.println("...Vänta 7 sek...");
+            inserter.save(csvScanner.getmTemperaturModel(), rs.getInt(1), 1, periodId);
+
+            System.out.println("...Väntar 7 sek...");
 
 
             Thread.sleep(7000);

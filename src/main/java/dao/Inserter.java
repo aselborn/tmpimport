@@ -306,13 +306,15 @@ public class Inserter  {
             statement.setInt(1, stationId);
             statement.setInt(2, periodId);
 
-            int row = statement.executeUpdate();
-            System.out.println("Deleted ".concat(String.valueOf(row)).concat( " lines"));
+            if (periodId == 4 || periodId == 3){
+                int row = statement.executeUpdate();
+                System.out.println("Deleted ".concat(String.valueOf(row)).concat( " lines"));
+            }
 
             String sqlInsertLite = "INSERT INTO Data(StationId, ParameterId, Temperature, DateValue, TimeValue, DateTimeValue, PeriodId)";
             sqlInsertLite += " VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-            String sqlMysql =  "INSERT INTO Data(StationId, ParameterId, Temperature, DateTimeValue, PeriodId)";
+            String sqlMysql =  "INSERT INTO data(StationId, ParameterId, Temperature, DateTimeValue, PeriodId)";
             sqlMysql += " VALUES (?, ?, ?, ?, ?)";
 
             thisConnection.setAutoCommit(false);

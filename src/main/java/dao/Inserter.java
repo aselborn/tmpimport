@@ -83,10 +83,13 @@ public class Inserter  {
         int batchSize=100;
         int insertCount = 0;
 
-        String sqlInsert = "INSERT INTO SmhiParameters(Key, Title, Summary) VALUES(?, ?, ?)";
+        String sqlInsert = "INSERT INTO SmhiParameters(KeyId, Title, Summary) VALUES(?, ?, ?)";
+        /*
         if (!useSQLite){
             sqlInsert = sqlInsert.toLowerCase(Locale.ROOT).replace("key", "KeyId");
-        }
+        } */
+
+
         PreparedStatement pstmt = thisConnection.prepareStatement(sqlInsert);
 
         try{

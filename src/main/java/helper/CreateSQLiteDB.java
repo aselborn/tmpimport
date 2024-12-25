@@ -18,8 +18,11 @@ public class CreateSQLiteDB {
                 DatabaseMetaData meta = conn.getMetaData();
                 System.out.println("The driver name is " + meta.getDriverName());
                 System.out.println("A new database has been created.");
+<<<<<<< HEAD
 
                 conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();
@@ -44,7 +47,10 @@ public class CreateSQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.execute(bu.toString());
             System.out.println("Tabellen Data skapad.");
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -63,7 +69,10 @@ public class CreateSQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.execute(bu.toString());
             System.out.println("Tabellen Periods skapad.");
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -84,7 +93,10 @@ public class CreateSQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.execute(bu.toString());
             System.out.println("Tabellen Run skapad.");
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -106,7 +118,10 @@ public class CreateSQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.execute(bu.toString());
             System.out.println("Tabellen RunConfig skapad.");
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -126,7 +141,10 @@ public class CreateSQLiteDB {
             Statement stmt = conn.createStatement();
             stmt.execute(bu.toString());
             System.out.println("Tabellen SmhiParameters skapad.");
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -152,11 +170,18 @@ public class CreateSQLiteDB {
             stmt.execute(bu.toString());
 
             System.out.println("Tabellen Stations skapad.");
+<<<<<<< HEAD
             conn.close();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 
+=======
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
     }
 
     public static void insertPeriods(String sqliteDB)  {
@@ -179,10 +204,18 @@ public class CreateSQLiteDB {
             stmt.execute("INSERT INTO Periods (PeriodId, PeriodName) VALUES (3, 'latest-months');");
             stmt.execute("INSERT INTO Periods (PeriodId, PeriodName) VALUES (4, 'corrected-archive');");
 
+<<<<<<< HEAD
             conn.close();
+=======
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> 52fe70d0d7e993e123212095ed6a3c27cf3c8c97
     }
 }
